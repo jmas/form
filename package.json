@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "build": "parcel index.html"
+  },
   "dependencies": {
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
