@@ -1,0 +1,39 @@
+[
+    {
+        "label": "First Name",
+        "type": "text",
+        "name": "firstname",
+        "validation": [
+            "firstname",
+            "required"
+        ]
+    },
+    {
+        "label": "Second Name",
+        "type": "text",
+        "name": "secondname",
+        "validation": [
+            "secondname",
+            "required"
+        ]
+    },
+    {
+        "label": "E-mail",
+        "type": "text",
+        "name": "email",
+        "validation": [
+            "email",
+            "required",
+            ["min", {"min": 10}],
+            ["max", {"max": 100}]
+        ]
+    },
+    {
+        "label": "Bio",
+        "type": "wysiwyg",
+        "name": "bio",
+        "options": {
+            "tools": ["b", "i", "u"]
+        }
+    }
+]
