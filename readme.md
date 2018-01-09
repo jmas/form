@@ -55,15 +55,21 @@ const values = {
     "bio": "<b>Be the best to mean something.</b>"
 };
 
+const handleSubmit = values => {
+    console.log(values);
+};
+
 const Example = () => (
     <div>
         <Form
             elements={elements}
             values={values}
+            handleSubmit={handleSubmit}
         />
         <FormWithValidation
             elements={elements}
             values={values}
+            handleSubmit={handleSubmit}
         />
     </div>
 );
