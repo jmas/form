@@ -1,46 +1,58 @@
 import React, {createElement, PureComponent} from 'react';
+import propTypes from 'prop-types';
 
-const Form = ({
+function Form({
     handleSubmit,
     elements,
-}) => (
-    <form onSubmit={handleSubmit}>
-        {elements}
-        <div>
-            <input type={'submit'} />
-        </div>
-    </form>
-);
+}) {
+    return (
+        <form onSubmit={handleSubmit}>
+            {elements}
+            <div>
+                <input type={'text'} value={'safsd'} />
+            </div>
+        </form>
+    );
+}
 
-const Element = ({
+function FormElement({
     label,
     element,
     error=null,
-}) => (
-    <div>
-        {
-            label
-                ?
-                    <label>
-                        {label}
-                    </label>
-                : null
-        }
-        { element }
-        {
-            error
-                ?
-                    <small className={'error'}>
-                        {error}
-                    </small>
-                : null
-        }
-    </div>
-);
+}) {
+    return (
+        <div>
+            {
+                label
+                    ?
+                        <label>
+                            {label}
+                        </label>
+                    : null
+            }
+            { element }
+            {
+                error
+                    ?
+                        <small className={'error'}>
+                            {error}
+                        </small>
+                    : null
+            }
+        </div>
+    );    
+}
 
-export default class extends PureComponent {
+export default class StatefulForm extends PureComponent {
     state = {
         values: {},
+    };
+
+    static propTypes = {
+        elements: propTypes.array.isRequired,
+        types: propTypes.object.isRequired,
+        values: propTypes.object.isRequired,
+        errors: propTypes.object,
     };
 
     componentDidMount() {
@@ -55,7 +67,7 @@ export default class extends PureComponent {
             elements=[],
             types={},
             errors={},
-            ElementComponent=Element,
+            FormElementComponent=FormElement,
             FormComponent=Form,
         } = this.props;
         const {
@@ -68,18 +80,23 @@ export default class extends PureComponent {
                         label,
                         type,
                         name,
-                    }, index) => (
-                        <ElementComponent
-                            key={index}
-                            label={label}
-                            error={errors[name]}
-                            element={createElement(types[type], {
-                                value:          values[name],
-                                handleChange:   value => this._handleChange(name, value),
-                                handleBlur:     value => this._handleBlur(name, value),
-                            })}
-                        />
-                    ))
+                    }, index) => {
+                        if (!types[type]) {
+                            throw `Type '${type}' is not defined in types array.`;
+                        }
+                        return (
+                            <FormElementComponent
+                                key={index}
+                                label={label}
+                                error={errors[name]}
+                                element={createElement(types[type], {
+                                    value:          values[name],
+                                    handleChange:   value => this._handleChange(name, value),
+                                    handleBlur:     value => this._handleBlur(name, value),
+                                })}
+                            />
+                        );
+                    })
                 }
                 handleSubmit={this._handleSubmit}
             />
