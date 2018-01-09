@@ -9,7 +9,7 @@ function Form({
         <form onSubmit={handleSubmit}>
             {elements}
             <div>
-                <input type={'text'} value={'safsd'} />
+                <input type={'submit'} />
             </div>
         </form>
     );
