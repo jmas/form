@@ -1,7 +1,7 @@
 export default (name, value, options={}) => (
     new Promise((resolve, reject) => {
-        if (!value) {
-            reject(`Field '${name}' is can't be empty!`);
+        if (String(value).length > options.size) {
+            reject(`Field '${name}' length can't be more then ${options.size} chars!`);
         } else {
             resolve();
         }

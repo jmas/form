@@ -44,15 +44,15 @@ function FormElement({
 }
 
 export default class StatefulForm extends PureComponent {
-    state = {
-        values: {},
-    };
-
     static propTypes = {
         elements: propTypes.array.isRequired,
         types: propTypes.object.isRequired,
         values: propTypes.object.isRequired,
         errors: propTypes.object,
+    };
+
+    state = {
+        values: {},
     };
 
     componentDidMount() {
@@ -129,11 +129,15 @@ export default class StatefulForm extends PureComponent {
 }
 
 export const withValidation = ({
-    validators,
+    validators={},
     validateOnBlur=true,
     validateOnChange=false,
 }) => FormComponent => {
-    return class extends PureComponent {
+    return class FormValidation extends PureComponent {
+        static propTypes = {
+            elements: propTypes.array.isRequired,
+        };
+
         state = {
             errors: {},
         };
@@ -151,25 +155,53 @@ export const withValidation = ({
 
         _handleBlur = (name, value) => {
             if (validateOnBlur) {
-                this.setState(state => ({
-                    ...state,
-                    errors: {
-                        ...state.errors,
-                        [name]: 'Warn!',
-                    },
-                }));
+                this._validate(name, value);
             }
         };
 
         _handleChange = (name, value) => {
             if (validateOnChange) {
-                this.setState(state => ({
-                    ...state,
-                    errors: {
-                        ...state.errors,
-                        [name]: 'Warn!',
-                    },
-                }));
+                this._validate(name, value);
+            }
+        };
+
+        _validate = (fieldName, fieldValue) => {
+            const {elements} = this.props;
+            const fieldValidators = elements.find(item => item.name === fieldName).validators;
+            if (fieldValidators) {
+                Promise.all(
+                    fieldValidators.map(item => {
+                        let validatorName;
+                        let validatorOptions = {};
+                        if (item instanceof Array) {
+                            [validatorName, validatorOptions] = item;
+                        } else {
+                            validatorName = item;
+                        }
+                        if (!validators[validatorName]) {
+                            throw `Validator with name '${validatorName}' is not found.`
+                        }
+                        return validators[validatorName](fieldName, fieldValue, validatorOptions);
+                    })
+                )
+                    .then(() => {
+                        this.setState(state => ({
+                            ...state,
+                            errors: {
+                                ...state.errors,
+                                [fieldName]: null,
+                            },
+                        }));
+                    })
+                    .catch(error => {
+                        this.setState(state => ({
+                            ...state,
+                            errors: {
+                                ...state.errors,
+                                [fieldName]: error,
+                            },
+                        }));
+                    });
             }
         };
     };

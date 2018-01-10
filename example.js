@@ -13,27 +13,25 @@ const elements = [
     {
         "type": "text",
         "name": "firstname",
-        "validation": [
-            "firstname",
+        "validators": [
             "required"
         ]
     },
     {
         "type": "text",
         "name": "secondname",
-        "validation": [
-            "secondname",
+        "validators": [
             "required"
         ]
     },
     {
         "type": "text",
         "name": "email",
-        "validation": [
-            "email",
+        "validators": [
             "required",
-            ["min", 10],
-            ["max", 200]
+            "email",
+            ["min", {"size": 10}],
+            ["max", {"size": 200}]
         ]
     },
     {
