@@ -39,7 +39,10 @@ const elements = [
         "name": "bio",
         "options": {
             "tools": ["b", "i", "u"]
-        }
+        },
+        "validators": [
+            "required"
+        ]
     }
 ];
 
@@ -55,20 +58,12 @@ const handleSubmit = values => {
 };
 
 const Example = () => (
-    <div>
-        <Form
-            elements={elements}
-            types={types}
-            values={values}
-            handleSubmit={handleSubmit}
-        />
-        <FormWithValidation
-            elements={elements}
-            types={types}
-            values={values}
-            handleSubmit={handleSubmit}
-        />
-    </div>
+    <FormWithValidation
+        elements={elements}
+        types={types}
+        values={values}
+        handleSubmit={handleSubmit}
+    />
 );
 
 export default Example;
