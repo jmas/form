@@ -1,40 +1,51 @@
 import React, {createElement, PureComponent} from 'react';
 import propTypes from 'prop-types';
+import defaultFieldClassNames from './field.css';
+import defaultFormClassNames from './form.css';
+
+export * from './validation';
 
 function Form({
     handleSubmit,
-    elements,
+    fields,
+    classNames={},
 }) {
     return (
-        <form onSubmit={handleSubmit}>
-            {elements}
-            <div>
+        <form onSubmit={handleSubmit} className={classNames.form}>
+            <div className={classNames.fields}>
+                {fields}
+            </div>
+            <div className={classNames.submit}>
                 <input type={'submit'} />
             </div>
         </form>
     );
 }
 
-function FormElement({
+function Field({
     label,
-    element,
+    field,
     error=null,
+    isValidation=false,
+    classNames={},
 }) {
     return (
-        <div>
+        <div className={classNames.field}>
             {
                 label
                     ?
-                        <label>
+                        <label className={classNames.label}>
                             {label}
                         </label>
                     : null
             }
-            { element }
+            <div className={classNames.holder}>
+                { field }
+            </div>
             {
                 error
                     ?
-                        <small className={'error'}>
+                        <small className={classNames.error}>
                             {error}
                         </small>
                     : null
@@ -45,10 +56,11 @@ function FormElement({
 
 export default class StatefulForm extends PureComponent {
     static propTypes = {
-        elements: propTypes.array.isRequired,
-        types: propTypes.object.isRequired,
-        values: propTypes.object.isRequired,
-        errors: propTypes.object,
+        fields:     propTypes.array.isRequired,
+        types:      propTypes.object.isRequired,
+        values:     propTypes.object.isRequired,
+        errors:     propTypes.object,
+        classNames: propTypes.object,
     };
 
     state = {
@@ -64,10 +76,12 @@ export default class StatefulForm extends PureComponent {
 
     render() {
         const {
-            elements=[],
+            fields=[],
             types={},
             errors={},
-            FormElementComponent=FormElement,
+            formClassNames=defaultFormClassNames,
+            fieldClassNames=defaultFieldClassNames,
+            FieldComponent=Field,
             FormComponent=Form,
         } = this.props;
         const {
@@ -75,8 +89,8 @@ export default class StatefulForm extends PureComponent {
         } = this.state;
         return (
             <FormComponent
-                elements={
-                    elements.map(({
+                fields={
+                    fields.map(({
                         label,
                         type,
                         name,
@@ -85,20 +99,22 @@ export default class StatefulForm extends PureComponent {
                             throw `Type '${type}' is not defined in types array.`;
                         }
                         return (
-                            <FormElementComponent
+                            <FieldComponent
                                 key={index}
                                 label={label}
                                 error={errors[name]}
-                                element={createElement(types[type], {
+                                field={createElement(types[type], {
                                     value:          values[name],
                                     handleChange:   value => this._handleChange(name, value, values),
                                     handleBlur:     value => this._handleBlur(name, value, values),
                                 })}
+                                classNames={fieldClassNames}
                             />
                         );
                     })
                 }
                 handleSubmit={this._handleSubmit}
+                classNames={formClassNames}
             />
         );
     }
@@ -127,5 +143,3 @@ export default class StatefulForm extends PureComponent {
         }
     };
 }
-
-export * from './validation';

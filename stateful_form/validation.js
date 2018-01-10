@@ -1,11 +1,25 @@
 import React, {PureComponent} from 'react';
 import propTypes from 'prop-types';
 
-export const validate = (fieldName, fieldValue, validators=[], values={}) => (
+const normalizeValidator = (validator, validators) => {
+    const [name, options] = (
+        validator instanceof Array
+            ? validator
+            : [validator, {}]
+    );
+    if (!validators[name]) {
+        throw `Validator '${name}' is not defined.`;
+    }
+    return [validators[name], options];
+};
+
+const validate = (field, value, validators=[], values={}) => (
     Promise.all(
-        validators.map(([validator, validatorOptions]) => (
-            validator(fieldName, fieldValue, validatorOptions, values)
-        ))
+        (field.validators || []).map(validator => 
+            normalizeValidator(validator, validators)
+        ).map(([validateFn, options]) => 
+            validateFn(value, options, values)
+        )
     )
 );
 
@@ -13,14 +27,15 @@ export const withValidation = ({
     validators={},
     validateOnBlur=true,
     validateOnChange=false,
-}) => FormComponent => {
-    return class FormValidation extends PureComponent {
+}) => FormComponent => (
+    class FormValidationState extends PureComponent {
         static propTypes = {
-            elements: propTypes.array.isRequired,
+            fields: propTypes.array.isRequired,
         };
 
         state = {
             errors: {},
+            isValidating: false,
         };
 
         render() {
@@ -35,66 +50,39 @@ export const withValidation = ({
             );
         }
 
+        _getFieldByName = name => (
+            this.props.fields.find(item => item.name === name)
+        );
+
         _handleBlur = (name, value, values={}) => {
             if (validateOnBlur) {
-                this._validate(name, value, values)
-                    .then(() => {
-                        this.setState(state => ({
-                            ...state,
-                            errors: {
-                                ...state.errors,
-                                [name]: null,
-                            },
-                        }));
-                    })
-                    .catch(error => {
-                        this.setState(state => ({
-                            ...state,
-                            errors: {
-                                ...state.errors,
-                                [name]: error,
-                            },
-                        }));
-                    });;
+                this._validateField(name, value, values);
             }
         };
 
         _handleChange = (name, value, values={}) => {
             if (validateOnChange) {
-                this._validate(name, value, values)
-                    .then(() => {
-                        this.setState(state => ({
-                            ...state,
-                            errors: {
-                                ...state.errors,
-                                [name]: null,
-                            },
-                        }));
-                    })
-                    .catch(error => {
-                        this.setState(state => ({
-                            ...state,
-                            errors: {
-                                ...state.errors,
-                                [name]: error,
-                            },
-                        }));
-                    });;
+                this._validateField(name, value, values);
             }
         };
 
         _handleSubmit = (values={}) => {
+            this.setState(state => ({
+                ...state,
+                isValidating: true,
+            }));
             Promise.all(
-                this.props.elements.map(({name}) =>
+                this.props.fields.map(field =>
                     new Promise((resolve, reject) =>
-                        this._validate(name, values[name], values)
+                    validate(field, values[field.name], validators, values)
                             .then(() => {
                                 resolve();
                                 this.setState(state => ({
                                     ...state,
+                                    isValidating: false,
                                     errors: {
                                         ...state.errors,
-                                        [name]: null,
+                                        [field.name]: null,
                                     },
                                 }));
                             })
@@ -102,39 +90,46 @@ export const withValidation = ({
                                 reject();
                                 this.setState(state => ({
                                     ...state,
+                                    isValidating: false,
                                     errors: {
                                         ...state.errors,
-                                        [name]: error,
+                                        [field.name]: error,
                                     },
                                 }));
                             })
                     )
                 )
-            ).then(() => {
-                this.props.handleSubmit(values);
-            })
-            .catch(() => {});
+            )
+                .then(() => this.props.handleSubmit(values))
+                .catch(() => {});
         };
 
-        _validate = (fieldName, fieldValue, values={}) => {
-            return validate(
-                fieldName,
-                fieldValue,
-                (this.props.elements.find(item => item.name === fieldName).validators || []).map(item => {
-                    let validatorName;
-                    let validatorOptions = {};
-                    if (item instanceof Array) {
-                        [validatorName, validatorOptions] = item;
-                    } else {
-                        validatorName = item;
-                    }
-                    if (!validators[validatorName]) {
-                        throw `Validator with name '${validatorName}' is not found.`
-                    }
-                    return [validators[validatorName], validatorOptions];
-                }),
-                values
-            );   
+        _validateField = (name, value, values={}) => {
+            this.setState(state => ({
+                ...state,
+                isValidating: true,
+            }));
+            validate(this._getFieldByName(name), value, validators, values)
+                .then(() => {
+                    this.setState(state => ({
+                        ...state,
+                        isValidating: false,
+                        errors: {
+                            ...state.errors,
+                            [name]: null,
+                        },
+                    }));
+                })
+                .catch(error => {
+                    this.setState(state => ({
+                        ...state,
+                        isValidating: false,
+                        errors: {
+                            ...state.errors,
+                            [name]: error,
+                        },
+                    }));
+                });
         };
-    };
-};
+    }
+);

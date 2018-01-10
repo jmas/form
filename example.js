@@ -9,8 +9,9 @@ const FormWithValidation = withValidation({
     validateOnChange: false,
 })(Form);
 
-const elements = [
+const fields = [
     {
+        "label": "First name",
         "type": "text",
         "name": "firstname",
         "validators": [
@@ -18,6 +19,7 @@ const elements = [
         ]
     },
     {
+        "label": "Second name",
         "type": "text",
         "name": "secondname",
         "validators": [
@@ -25,6 +27,7 @@ const elements = [
         ]
     },
     {
+        "label": "Email",
         "type": "text",
         "name": "email",
         "validators": [
@@ -35,6 +38,7 @@ const elements = [
         ]
     },
     {
+        "label": "Bio",
         "type": "wysiwyg",
         "name": "bio",
         "options": {
@@ -59,7 +63,7 @@ const handleSubmit = values => {
 
 const Example = () => (
     <FormWithValidation
-        elements={elements}
+        fields={fields}
         types={types}
         values={values}
         handleSubmit={handleSubmit}

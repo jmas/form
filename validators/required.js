@@ -1,7 +1,7 @@
-export default (name, value, options={}) => (
+export default (value, options={}, values={}) => (
     new Promise((resolve, reject) => {
         if (!value) {
-            reject(`Field '${name}' can't be empty!`);
+            reject(`Field can't be empty!`);
         } else {
             resolve();
         }
