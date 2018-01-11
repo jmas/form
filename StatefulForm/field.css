@@ -11,6 +11,10 @@
     border-color: red;
 }
 
+.input :global(.ql-container) {
+    height: 200px;
+}
+
 .label {
     display: block;
     font-weight: bold;

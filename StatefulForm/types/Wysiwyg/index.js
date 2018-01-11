@@ -7,10 +7,12 @@ export default ({
     handleChange,
     handleBlur,
     options={},
+    className,
 }) => (
     <ReactQuill
         value={value || ''}
         onChange={(content, delta, source, editor) => handleChange(!editor.getText().trim() ? '': editor.getHTML())}
         onBlur={(previousRange, source, editor) => handleBlur(!editor.getText().trim() ? '': editor.getHTML())}
+        className={className}
     />
 );
