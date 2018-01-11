@@ -7,6 +7,12 @@
     font-weight: bold;
 }
 
+.required .label:after {
+    content: '*';
+    color: red;
+    margin-left: 5px;
+}
+
 .error {
     color: red;
 }

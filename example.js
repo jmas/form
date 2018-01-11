@@ -1,10 +1,7 @@
 import React from 'react';
 import Form, {withValidation} from './stateful_form';
-import validators from './validators';
-import types from './types';
 
 const FormWithValidation = withValidation({
-    validators,
     validateOnBlur: true,
     validateOnChange: false,
 })(Form);
@@ -47,7 +44,19 @@ const fields = [
         "validators": [
             "required"
         ]
-    }
+    },
+    {
+        "label": "Notes",
+        "type": "text",
+        "name": "notes",
+        "options": {
+            "multiline": true
+        },
+        "validators": [
+            ["min", {"size": 10}],
+            ["max", {"size": 200}]
+        ]
+    },
 ];
 
 const values = {
@@ -64,7 +73,6 @@ const handleSubmit = values => {
 const Example = () => (
     <FormWithValidation
         fields={fields}
-        types={types}
         values={values}
         handleSubmit={handleSubmit}
     />

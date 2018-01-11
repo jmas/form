@@ -1,5 +1,6 @@
 import React, {PureComponent} from 'react';
 import propTypes from 'prop-types';
+import defaultValidators from './validators';
 
 const normalizeValidator = (validator, validators) => {
     const [name, options] = (
@@ -23,8 +24,10 @@ const validate = (field, value, validators=[], values={}) => (
     )
 );
 
+export const validators = defaultValidators;
+
 export const withValidation = ({
-    validators={},
+    validators=defaultValidators,
     validateOnBlur=true,
     validateOnChange=false,
 }) => FormComponent => (

@@ -1,5 +1,6 @@
 import React, {createElement, PureComponent} from 'react';
 import propTypes from 'prop-types';
+import defaultTypes from './types';
 import defaultFieldClassNames from './field.css';
 import defaultFormClassNames from './form.css';
 
@@ -26,11 +27,12 @@ function Field({
     label,
     field,
     error=null,
+    validators=[],
     isValidation=false,
     classNames={},
 }) {
     return (
-        <div className={classNames.field}>
+        <div className={`${classNames.field} ${validators.indexOf('required') !== -1 ? classNames.required: ''}`}>
             {
                 label
                     ?
@@ -61,6 +63,14 @@ export default class StatefulForm extends PureComponent {
         values:     propTypes.object.isRequired,
         errors:     propTypes.object,
         classNames: propTypes.object,
+    };
+
+    static defaultProps = {
+        fields:     [],
+        types:      defaultTypes,
+        values:     {},
+        errors:     {},
+        classNames: {},
     };
 
     state = {
@@ -94,6 +104,8 @@ export default class StatefulForm extends PureComponent {
                         label,
                         type,
                         name,
+                        validators=[],
+                        options={},
                     }, index) => {
                         if (!types[type]) {
                             throw `Type '${type}' is not defined in types array.`;
@@ -103,10 +115,13 @@ export default class StatefulForm extends PureComponent {
                                 key={index}
                                 label={label}
                                 error={errors[name]}
+                                validators={validators}
+                                options={options}
                                 field={createElement(types[type], {
                                     value:          values[name],
                                     handleChange:   value => this._handleChange(name, value, values),
                                     handleBlur:     value => this._handleBlur(name, value, values),
+                                    options,
                                 })}
                                 classNames={fieldClassNames}
                             />
