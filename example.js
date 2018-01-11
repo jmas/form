@@ -45,7 +45,9 @@ const fields = [
         "type": "text",
         "name": "notes",
         "options": {
-            "multiline": true
+            "multiline": true,
+            "helpText": "Min 10, max 200",
+            "placeholder": "Note description"
         },
         "validators": [
             ["min", {"size": 10}],

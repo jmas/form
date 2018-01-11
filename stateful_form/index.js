@@ -31,15 +31,24 @@ function DefaultField({
     validators=[],
     isValidation=false,
     classNames={},
+    options={},
 }) {
     return (
-        <div className={`${classNames.field} ${validators.indexOf('required') !== -1 ? classNames.required: ''}`}>
+        <div className={`${classNames.field} ${error ? classNames.hasError: ''} ${validators.indexOf('required') !== -1 ? classNames.required: ''}`}>
             {
                 label
                     ?
                         <label className={classNames.label}>
                             {label}
                         </label>
+                    : null
+            }
+            {
+                options.helpText
+                    ?
+                        <small className={classNames.helpText}>
+                            {options.helpText}
+                        </small>
                     : null
             }
             <div className={classNames.holder}>
@@ -98,37 +107,50 @@ export class Form extends PureComponent {
         const {
             values={},
         } = this.state;
+        const getFieldElement = ({
+            label,
+            type,
+            name,
+            validators=[],
+            options={},
+            key=null,
+        }) => {
+            if (!types[type]) {
+                throw `Field type '${type}' is not defined.`;
+            }
+            return (
+                <FieldComponent
+                    label={label}
+                    error={errors[name]}
+                    validators={validators}
+                    options={options}
+                    field={
+                        createElement(types[type], {
+                            value:          values[name],
+                            handleChange:   value => this._handleChange(name, value, values),
+                            handleBlur:     value => this._handleBlur(name, value, values),
+                            hasError:       !!errors[name],
+                            className:      fieldClassNames.input,
+                            options,
+                        })
+                    }
+                    classNames={fieldClassNames}
+                    key={key}
+                />
+            ); 
+        };
         return (
             <FormComponent
                 fields={
-                    fields.map(({
-                        label,
-                        type,
-                        name,
-                        validators=[],
-                        options={},
-                    }, index) => {
-                        if (!types[type]) {
-                            throw `Type '${type}' is not defined in types array.`;
-                        }
-                        return (
-                            <FieldComponent
-                                key={index}
-                                label={label}
-                                error={errors[name]}
-                                validators={validators}
-                                options={options}
-                                field={createElement(types[type], {
-                                    value:          values[name],
-                                    handleChange:   value => this._handleChange(name, value, values),
-                                    handleBlur:     value => this._handleBlur(name, value, values),
-                                    options,
-                                })}
-                                classNames={fieldClassNames}
-                            />
-                        );
-                    })
+                    fields.map((field, index) => getFieldElement({...field, key: index}))
                 }
+                getField={name => {
+                    const field = fields.find(item => item.name === name);
+                    if (!field) {
+                        throw `Field '${name}' is not found in fields list.`
+                    }
+                    return getFieldElement({...field});
+                }}
                 handleSubmit={this._handleSubmit}
                 classNames={formClassNames}
             />

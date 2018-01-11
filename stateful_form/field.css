@@ -2,6 +2,15 @@
     margin-bottom: 10px;
 }
 
+.field.hasError {
+    color: red;
+}
+
+.field.hasError .input {
+    color: red;
+    border-color: red;
+}
+
 .label {
     display: block;
     font-weight: bold;
@@ -15,4 +24,13 @@
 
 .error {
     color: red;
+}
+
+.inputError {
+    border-color: red;
+    color: red;
+}
+
+.helpText {
+    color: #aaa;
 }
