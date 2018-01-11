@@ -1,10 +1,5 @@
 import React from 'react';
-import Form, {withValidation} from './stateful_form';
-
-const FormWithValidation = withValidation({
-    validateOnBlur: true,
-    validateOnChange: false,
-})(Form);
+import {FormWithValidation} from './stateful_form';
 
 const fields = [
     {
@@ -72,6 +67,9 @@ const handleSubmit = values => {
 
 const Example = () => (
     <FormWithValidation
+        validateOnBlur={true}
+        validateOnChange={false}
+        validateOnSubmit={true}
         fields={fields}
         values={values}
         handleSubmit={handleSubmit}

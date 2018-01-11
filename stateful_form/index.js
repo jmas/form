@@ -3,10 +3,11 @@ import propTypes from 'prop-types';
 import defaultTypes from './types';
 import defaultFieldClassNames from './field.css';
 import defaultFormClassNames from './form.css';
+import {withValidation} from './validation';
 
 export * from './validation';
 
-function Form({
+function DefaultForm({
     handleSubmit,
     fields,
     classNames={},
@@ -23,7 +24,7 @@ function Form({
     );
 }
 
-function Field({
+function DefaultField({
     label,
     field,
     error=null,
@@ -56,7 +57,7 @@ function Field({
     );    
 }
 
-export default class StatefulForm extends PureComponent {
+export class Form extends PureComponent {
     static propTypes = {
         fields:     propTypes.array.isRequired,
         types:      propTypes.object.isRequired,
@@ -91,8 +92,8 @@ export default class StatefulForm extends PureComponent {
             errors={},
             formClassNames=defaultFormClassNames,
             fieldClassNames=defaultFieldClassNames,
-            FieldComponent=Field,
-            FormComponent=Form,
+            FieldComponent=DefaultField,
+            FormComponent=DefaultForm,
         } = this.props;
         const {
             values={},
@@ -157,4 +158,11 @@ export default class StatefulForm extends PureComponent {
             this.props.handleBlur(name, value);
         }
     };
+}
+
+export function FormWithValidation(props) {
+    const FormWithValidation = withValidation(props)(Form);
+    return (
+        <FormWithValidation {...props} />
+    );
 }
