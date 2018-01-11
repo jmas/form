@@ -201,7 +201,7 @@ export class Form extends PureComponent {
                     name => {
                         const field = fields.find(item => item.name === name);
                         if (!field) {
-                            throw `Field '${name}' is not found in fields list.`
+                            throw `Field '${name}' is not found in fields list.`;
                         }
                         return getFieldElement({...field});
                     }
