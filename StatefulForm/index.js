@@ -157,32 +157,37 @@ export class Form extends PureComponent {
             if (!types[type]) {
                 throw `Field type '${type}' is not defined.`;
             }
-            return (
-                <FieldCondition
-                    conditions={normalizeConditions(field.conditions, conditions)}
-                    content={
-                        <FieldComponent
-                            label={label}
-                            error={errors[name]}
-                            validators={validators}
-                            options={options}
-                            field={
-                                createElement(types[type], {
-                                    value:          values[name],
-                                    handleChange:   value => this._handleChange(name, value, values),
-                                    handleBlur:     value => this._handleBlur(name, value, values),
-                                    hasError:       !!errors[name],
-                                    className:      fieldClassNames.input,
-                                    options,
-                                })
-                            }
-                            classNames={fieldClassNames}
-                        />
+            const content = (
+                <FieldComponent
+                    label={label}
+                    error={errors[name]}
+                    validators={validators}
+                    options={options}
+                    field={
+                        createElement(types[type], {
+                            value:          values[name],
+                            handleChange:   value => this._handleChange(name, value, values),
+                            handleBlur:     value => this._handleBlur(name, value, values),
+                            hasError:       !!errors[name],
+                            className:      fieldClassNames.input,
+                            options,
+                        })
                     }
-                    value={values[name]}
-                    values={values}
+                    classNames={fieldClassNames}
                     key={key}
                 />
+            );
+            return (
+                field.conditions
+                    ?
+                        <FieldCondition
+                            conditions={normalizeConditions(field.conditions, conditions)}
+                            content={content}
+                            value={values[name]}
+                            values={values}
+                            key={key}
+                        />
+                    : content
             );
         };
         return (
