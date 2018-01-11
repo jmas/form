@@ -79,7 +79,7 @@ export const withValidation = ({
                 Promise.all(
                     this.props.fields.map(field =>
                         new Promise((resolve, reject) =>
-                        validate(field, values[field.name], validators, values)
+                            validate(field, values[field.name], validators, values)
                                 .then(() => {
                                     resolve();
                                     this.setState(state => ({

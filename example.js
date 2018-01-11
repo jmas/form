@@ -1,5 +1,5 @@
 import React from 'react';
-import {FormWithValidation} from './stateful_form';
+import {FormWithValidation} from './StatefulForm';
 
 const fields = [
     {
@@ -49,6 +49,10 @@ const fields = [
             "helpText": "Min 10, max 200",
             "placeholder": "Note description"
         },
+        "conditions": [
+            ["ifFieldValue", {"fieldName": "firstname", "condition": "notEmpty"}],
+            ["ifFieldValue", {"fieldName": "firstname", "condition": "in", "inValues": ["abba"]}],
+        ],
         "validators": [
             ["min", {"size": 10}],
             ["max", {"size": 200}]
@@ -60,7 +64,8 @@ const values = {
     "firstname": "John",
     "secondname": "Doe",
     "email": "john@doe.com",
-    "bio": "<b>Be the best to mean something.</b>"
+    "bio": "<b>Be the best to mean something.</b>",
+    "notes": "Notes"
 };
 
 const handleSubmit = values => {

@@ -1,6 +1,7 @@
 import React, {createElement, PureComponent} from 'react';
 import propTypes from 'prop-types';
 import defaultTypes from './types';
+import defaultConditions from './conditions';
 import defaultFieldClassNames from './field.css';
 import defaultFormClassNames from './form.css';
 import {withValidation} from './validation';
@@ -66,6 +67,42 @@ function DefaultField({
     );    
 }
 
+class FieldCondition extends PureComponent {
+    static state = {
+        valid: false,
+    };
+
+    componentDidUpdate() {
+        Promise.all(
+            this.props.conditions.map(([conditionFn, options={}]) => 
+                conditionFn(this.props.value, options, this.props.values)
+            )
+        )
+            .then(() => this.setState(state => ({...state, valid: true})))
+            .catch(() => this.setState(state => ({...state, valid: false})));
+    }
+
+    render() {
+        return (
+            this.state && this.state.valid ? this.props.content: null
+        );
+    }
+}
+
+const normalizeConditions = (fieldConditions=[], conditions) => (
+    fieldConditions.map(item => {
+        const [name, options] = (
+            item instanceof Array
+                ? item
+                : [item, {}]
+        );
+        if (!conditions[name]) {
+            throw `Condition '${name}' is not defined.`;
+        }
+        return [conditions[name], options];
+    })
+);
+
 export class Form extends PureComponent {
     static propTypes = {
         fields:     propTypes.array.isRequired,
@@ -99,6 +136,7 @@ export class Form extends PureComponent {
             fields=[],
             types={},
             errors={},
+            conditions=defaultConditions,
             formClassNames=defaultFormClassNames,
             fieldClassNames=defaultFieldClassNames,
             FieldComponent=DefaultField,
@@ -114,43 +152,55 @@ export class Form extends PureComponent {
             validators=[],
             options={},
             key=null,
+            ...field,
         }) => {
             if (!types[type]) {
                 throw `Field type '${type}' is not defined.`;
             }
             return (
-                <FieldComponent
-                    label={label}
-                    error={errors[name]}
-                    validators={validators}
-                    options={options}
-                    field={
-                        createElement(types[type], {
-                            value:          values[name],
-                            handleChange:   value => this._handleChange(name, value, values),
-                            handleBlur:     value => this._handleBlur(name, value, values),
-                            hasError:       !!errors[name],
-                            className:      fieldClassNames.input,
-                            options,
-                        })
+                <FieldCondition
+                    conditions={normalizeConditions(field.conditions, conditions)}
+                    content={
+                        <FieldComponent
+                            label={label}
+                            error={errors[name]}
+                            validators={validators}
+                            options={options}
+                            field={
+                                createElement(types[type], {
+                                    value:          values[name],
+                                    handleChange:   value => this._handleChange(name, value, values),
+                                    handleBlur:     value => this._handleBlur(name, value, values),
+                                    hasError:       !!errors[name],
+                                    className:      fieldClassNames.input,
+                                    options,
+                                })
+                            }
+                            classNames={fieldClassNames}
+                        />
                     }
-                    classNames={fieldClassNames}
+                    value={values[name]}
+                    values={values}
                     key={key}
                 />
-            ); 
+            );
         };
         return (
             <FormComponent
                 fields={
-                    fields.map((field, index) => getFieldElement({...field, key: index}))
+                    fields.map((field, index) => 
+                        getFieldElement({...field, key: index})
+                    )
                 }
-                getField={name => {
-                    const field = fields.find(item => item.name === name);
-                    if (!field) {
-                        throw `Field '${name}' is not found in fields list.`
+                getField={
+                    name => {
+                        const field = fields.find(item => item.name === name);
+                        if (!field) {
+                            throw `Field '${name}' is not found in fields list.`
+                        }
+                        return getFieldElement({...field});
                     }
-                    return getFieldElement({...field});
-                }}
+                }
                 handleSubmit={this._handleSubmit}
                 classNames={formClassNames}
             />
@@ -163,16 +213,18 @@ export class Form extends PureComponent {
     };
 
     _handleChange = (name, value) => {
-        if (this.props.handleChange) {
-            this.props.handleChange(name, value);
+        if (this.state.values[name] !== value) {
+            if (this.props.handleChange) {
+                this.props.handleChange(name, value);
+            }
+            this.setState(state => ({
+                ...state,
+                values: {
+                    ...state.values,
+                    [name]: value,
+                },
+            }));
         }
-        this.setState(state => ({
-            ...state,
-            values: {
-                ...state.values,
-                [name]: value,
-            },
-        }));
     };
 
     _handleBlur = (name, value) => {
