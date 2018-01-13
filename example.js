@@ -72,6 +72,10 @@ const handleSubmit = values => {
     console.log(values);
 };
 
+const handleErrors = errors => {
+    console.log(errors);
+};
+
 const Example = () => (
     <FormWithValidation
         validateOnBlur={true}
@@ -79,6 +83,7 @@ const Example = () => (
         fields={fields}
         values={values}
         handleSubmit={handleSubmit}
+        handleErrors={handleErrors}
     />
 );
 
