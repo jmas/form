@@ -30,9 +30,6 @@
         "label": "Bio",
         "type": "wysiwyg",
         "name": "bio",
-        "options": {
-            "tools": ["b", "i", "u"]
-        },
         "validators": [
             "required"
         ]
@@ -47,8 +44,8 @@
             "placeholder": "Note description"
         },
         "conditions": [
-            ["ifFieldValue", {"fieldName": "firstname", "condition": "notEmpty"}],
-            ["ifFieldValue", {"fieldName": "firstname", "condition": "in", "inValues": ["abba"]}],
+            ["notEmpty", {"fieldName": "firstname"}],
+            ["inValues", {"fieldName": "firstname", "values": ["abba"]}]
         ],
         "validators": [
             ["min", {"size": 10}],
