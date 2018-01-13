@@ -1,5 +1,5 @@
 import React from 'react';
-import {FormWithValidation} from '../StatefulForm';
+import {FormWithValidation} from '../stateful_form';
 import fields from './fields.json';
 
 const values = {
