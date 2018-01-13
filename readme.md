@@ -2,7 +2,7 @@
 
 Declarative form renderer written with React.
 
-[Example](https://github.com/jmas/form/blob/master/example.js)
+[Example](https://github.com/jmas/form/blob/master/example/)
 
 # Why?
 
