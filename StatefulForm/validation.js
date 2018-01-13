@@ -30,7 +30,6 @@ export const withValidation = ({
     validators=defaultValidators,
     validateOnBlur=true,
     validateOnChange=false,
-    validateOnSubmit=true,
 }) => FormComponent => (
     class FormValidationState extends PureComponent {
         static propTypes = {
@@ -71,45 +70,52 @@ export const withValidation = ({
         };
 
         _handleSubmit = (values={}) => {
-            if (validateOnSubmit) {
-                this.setState(state => ({
-                    ...state,
-                    isValidating: true,
-                }));
-                Promise.all(
-                    this.props.fields.map(field =>
-                        new Promise((resolve, reject) =>
-                            validate(field, values[field.name], validators, values)
-                                .then(() => {
-                                    resolve();
-                                    this.setState(state => ({
-                                        ...state,
-                                        isValidating: false,
-                                        errors: {
-                                            ...state.errors,
-                                            [field.name]: null,
-                                        },
-                                    }));
-                                })
-                                .catch(error => {
-                                    reject();
-                                    this.setState(state => ({
-                                        ...state,
-                                        isValidating: false,
-                                        errors: {
-                                            ...state.errors,
-                                            [field.name]: error,
-                                        },
-                                    }));
-                                })
-                        )
+            let errors = {};
+            this.setState(state => ({
+                ...state,
+                isValidating: true,
+            }));
+            Promise.all(
+                this.props.fields.map(field =>
+                    new Promise((resolve, reject) =>
+                        validate(field, values[field.name], validators, values)
+                            .then(() => {
+                                resolve();
+                                errors = {
+                                    ...errors,
+                                    [field.name]: null,
+                                };
+                            })
+                            .catch(error => {
+                                reject();
+                                errors = {
+                                    ...errors,
+                                    [field.name]: error,
+                                };
+                            })
                     )
                 )
-                    .then(() => this.props.handleSubmit(values))
-                    .catch(() => {});
-            } else {
-                this.props.handleSubmit(values);
-            }
+            )
+                .then(() => {
+                    if (this.props.handleSubmit) {
+                        this.props.handleSubmit(values);
+                    }
+                    this.setState(state => ({
+                        ...state,
+                        isValidating: false,
+                        errors,
+                    }));
+                })
+                .catch(() => {
+                    if (this.props.handleErrors) {
+                        this.props.handleErrors(errors);
+                    }
+                    this.setState(state => ({
+                        ...state,
+                        isValidating: false,
+                        errors,
+                    }));
+                });
         };
 
         _validateField = (name, value, values={}) => {

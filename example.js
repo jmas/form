@@ -76,7 +76,6 @@ const Example = () => (
     <FormWithValidation
         validateOnBlur={true}
         validateOnChange={false}
-        validateOnSubmit={true}
         fields={fields}
         values={values}
         handleSubmit={handleSubmit}

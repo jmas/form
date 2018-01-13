@@ -15,6 +15,11 @@
     height: 200px;
 }
 
+.field.hasError .input :global(.ql-toolbar.ql-snow),
+.field.hasError .input :global(.ql-container.ql-snow) {
+    border-color: red;
+}
+
 .label {
     display: block;
     font-weight: bold;

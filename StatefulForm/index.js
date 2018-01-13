@@ -9,8 +9,8 @@ import {withValidation} from './validation';
 export * from './validation';
 
 function DefaultForm({
-    handleSubmit,
     fields,
+    handleSubmit=null,
     classNames={},
 }) {
     return (
