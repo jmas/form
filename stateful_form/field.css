@@ -6,9 +6,19 @@
     color: red;
 }
 
+.field .input.text {
+    border: 1px solid #ccc;
+    width: 100%;
+    padding: 5px;
+}
+
 .field.hasError .input {
     color: red;
     border-color: red;
+}
+
+.input :global(.ql-container.ql-snow) {
+    background-color: #fff;
 }
 
 .input :global(.ql-container) {

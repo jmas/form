@@ -7,15 +7,15 @@ const values = {
     "secondname": "Doe",
     "email": "john@doe.com",
     "bio": "<b>Be the best to mean something.</b>",
-    "notes": "Notes"
+    "notes": "Notes text has 10 chars"
 };
 
 const handleSubmit = values => {
-    console.log(values);
+    console.log('submit', values);
 };
 
 const handleErrors = errors => {
-    console.log(errors);
+    console.log('errors', errors);
 };
 
 const Example = () => (

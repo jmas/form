@@ -46,8 +46,8 @@ export const withValidation = ({
                 <FormComponent
                     {...this.props}
                     errors={{...this.props.errors, ...this.state.errors}}
-                    handleChange={this._handleChange}
-                    handleBlur={this._handleBlur}
+                    handleChange={validateOnChange ? this._handleChange: undefined}
+                    handleBlur={validateOnBlur ? this._handleBlur: undefined}
                     handleSubmit={this._handleSubmit}
                 />
             );
@@ -58,15 +58,11 @@ export const withValidation = ({
         );
 
         _handleBlur = (name, value, values={}) => {
-            if (validateOnBlur) {
-                this._validateField(name, value, values);
-            }
+            this._validateField(name, value, values);
         };
 
         _handleChange = (name, value, values={}) => {
-            if (validateOnChange) {
-                this._validateField(name, value, values);
-            }
+            this._validateField(name, value, values);
         };
 
         _handleSubmit = (values={}) => {
@@ -77,24 +73,27 @@ export const withValidation = ({
             }));
             Promise.all(
                 this.props.fields.map(field =>
-                    new Promise((resolve, reject) =>
-                        validate(field, values[field.name], validators, values)
-                            .then(() => {
-                                resolve();
-                                errors = {
-                                    ...errors,
-                                    [field.name]: null,
-                                };
-                            })
-                            .catch(error => {
-                                reject();
-                                errors = {
-                                    ...errors,
-                                    [field.name]: error,
-                                };
-                            })
-                    )
-                )
+                    values[field.name] || (field.validators || []).indexOf('required') !== -1
+                        ?
+                            new Promise((resolve, reject) =>
+                                validate(field, values[field.name], validators, values)
+                                    .then(() => {
+                                        resolve();
+                                        errors = {
+                                            ...errors,
+                                            [field.name]: null,
+                                        };
+                                    })
+                                    .catch(error => {
+                                        reject();
+                                        errors = {
+                                            ...errors,
+                                            [field.name]: error,
+                                        };
+                                    })
+                            )
+                        : null
+                ).filter(item => item !== null)
             )
                 .then(() => {
                     if (this.props.handleSubmit) {

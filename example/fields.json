@@ -3,6 +3,9 @@
         "label": "First name",
         "type": "text",
         "name": "firstname",
+        "options": {
+            "helpText": "If put 'John' it enable 'Notes' field"
+        },
         "validators": [
             "required"
         ]
@@ -19,6 +22,9 @@
         "label": "Email",
         "type": "text",
         "name": "email",
+        "options": {
+            "placeholder": "Your email address"
+        },
         "validators": [
             "required",
             "email",
@@ -45,7 +51,7 @@
         },
         "conditions": [
             ["notEmpty", {"fieldName": "firstname"}],
-            ["inValues", {"fieldName": "firstname", "values": ["abba"]}]
+            ["inValues", {"fieldName": "firstname", "values": ["John"]}]
         ],
         "validators": [
             ["min", {"size": 10}],

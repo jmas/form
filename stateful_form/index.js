@@ -68,8 +68,8 @@ function DefaultField({
 }
 
 class FieldCondition extends PureComponent {
-    static state = {
-        valid: false,
+    state = {
+        valid: true,
     };
 
     componentDidUpdate() {
@@ -84,7 +84,9 @@ class FieldCondition extends PureComponent {
 
     render() {
         return (
-            this.state && this.state.valid ? this.props.content: null
+            this.state.valid
+                ? this.props.content
+                : null
         );
     }
 }
@@ -127,7 +129,7 @@ export class Form extends PureComponent {
     componentDidMount() {
         this.setState(state => ({
             ...state,
-            values:  this.props.values,
+            values: this.props.values,
         }));
     }
 
@@ -169,7 +171,7 @@ export class Form extends PureComponent {
                             handleChange:   value => this._handleChange(name, value, values),
                             handleBlur:     value => this._handleBlur(name, value, values),
                             hasError:       !!errors[name],
-                            className:      fieldClassNames.input,
+                            className:      fieldClassNames.input + ' ' + fieldClassNames[type],
                             options,
                         })
                     }
